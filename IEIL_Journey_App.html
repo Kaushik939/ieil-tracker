@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>IEIL Journey Tracker</title>
+<style>
+:root {
+  --navy:#0A1628;--teal:#0E7C7B;--teal-l:#E6F4F4;
+  --gold:#C9973A;--gold-l:#FEF3C7;--white:#FFFFFF;
+  --gray:#F4F6F8;--dgray:#1E293B;--slate:#64748B;
+  --red:#C0392B;--red-l:#FEE2E2;--green:#1A7A4A;--green-l:#D1FAE5;
+  --amber:#D97706;--amber-l:#FEF3C7;--purple:#6D28D9;--purp-l:#EDE9FE;
+  --blue-l:#EFF6FF;--r:12px;--sh:0 2px 12px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  background:var(--gray);color:var(--dgray);min-height:100vh;padding-bottom:84px;}
+
+.topbar{background:var(--navy);color:white;padding:14px 16px 12px;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.topbar-inner{display:flex;align-items:center;gap:12px;}
+.topbar-logo{width:36px;height:36px;background:var(--teal);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:13px;color:white;flex-shrink:0;}
+.topbar-title{font-size:15px;font-weight:700;line-height:1.2;}
+.topbar-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:1px;}
+
+.bottomnav{position:fixed;bottom:0;left:0;right:0;background:white;
+  border-top:1px solid #E2E8F0;display:flex;z-index:100;
+  box-shadow:0 -2px 12px rgba(0,0,0,.08);}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:8px 4px 12px;cursor:pointer;border:none;background:none;
+  color:var(--slate);font-size:10px;font-weight:500;gap:2px;transition:color .15s;}
+.bnav-item.active{color:var(--teal);}
+.bnav-icon{font-size:21px;line-height:1;}
+
+.page{display:none;padding:14px;}
+.page.active{display:block;}
+
+.card{background:white;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden;}
+.card-hdr{padding:13px 15px 9px;border-bottom:1px solid #F0F4F8;}
+.card-title{font-size:14px;font-weight:700;color:var(--navy);}
+.card-sub{font-size:11px;color:var(--slate);margin-top:2px;}
+.card-body{padding:13px 15px;}
+
+.badge{display:inline-flex;align-items:center;gap:3px;
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.bg{background:var(--green-l);color:var(--green);}
+.ba{background:var(--amber-l);color:var(--amber);}
+.br{background:var(--red-l);color:var(--red);}
+.bp{background:var(--purp-l);color:var(--purple);}
+.bt{background:var(--teal-l);color:var(--teal);}
+.bgo{background:var(--gold-l);color:var(--gold);}
+
+.form-group{margin-bottom:13px;}
+.form-label{font-size:11px;font-weight:700;color:var(--slate);
+  margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.3px;}
+.form-control{width:100%;padding:11px 13px;border:1.5px solid #E2E8F0;
+  border-radius:9px;font-size:14px;color:var(--dgray);background:white;
+  appearance:none;-webkit-appearance:none;transition:border-color .15s;font-family:inherit;}
+.form-control:focus{outline:none;border-color:var(--teal);
+  box-shadow:0 0 0 3px rgba(14,124,123,.12);}
+textarea.form-control{resize:vertical;min-height:80px;}
+select.form-control{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
+
+.btn{width:100%;padding:13px;border-radius:10px;border:none;font-size:14px;
+  font-weight:700;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;gap:7px;transition:opacity .15s,transform .1s;font-family:inherit;}
+.btn:active{transform:scale(.97);opacity:.9;}
+.btn-primary{background:var(--teal);color:white;}
+.btn-red{background:var(--red);color:white;}
+.btn-gold{background:var(--gold);color:white;}
+.btn-purple{background:var(--purple);color:white;}
+.btn-outline{background:white;color:var(--teal);border:2px solid var(--teal);}
+.btn-gray{background:var(--gray);color:var(--dgray);}
+.btn-sm{padding:9px 14px;font-size:13px;border-radius:8px;width:auto;}
+
+.tab-scroll{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px;
+  scrollbar-width:none;}
+.tab-scroll::-webkit-scrollbar{display:none;}
+.tab-pill{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;
+  cursor:pointer;white-space:nowrap;border:none;
+  background:white;color:var(--slate);box-shadow:var(--sh);}
+.tab-pill.active{background:var(--teal);color:white;}
+
+.log-item{background:white;border-radius:var(--r);padding:13px 14px;
+  margin-bottom:9px;box-shadow:var(--sh);border-left:4px solid var(--teal);cursor:pointer;}
+.log-item.red{border-left-color:var(--red);}
+.log-item.amber{border-left-color:var(--amber);}
+.log-item.green{border-left-color:var(--green);}
+.log-item.purple{border-left-color:var(--purple);}
+.log-item.gold{border-left-color:var(--gold);}
+.log-type{font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;}
+.log-title{font-size:14px;font-weight:700;color:var(--navy);margin:3px 0 2px;}
+.log-desc{font-size:12px;color:var(--slate);line-height:1.5;}
+.log-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.log-date{font-size:11px;color:var(--slate);}
+
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px;}
+.stat-card{background:white;border-radius:var(--r);padding:13px;
+  box-shadow:var(--sh);text-align:center;border-top:3px solid var(--teal);}
+.stat-num{font-size:30px;font-weight:900;color:var(--navy);line-height:1;}
+.stat-label{font-size:10px;color:var(--slate);margin-top:3px;font-weight:600;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:200;display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-sheet{background:white;border-radius:20px 20px 0 0;width:100%;
+  max-height:93vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.3,1);
+  padding-bottom:44px;}
+.modal-overlay.open .modal-sheet{transform:translateY(0);}
+.modal-handle{width:40px;height:4px;background:#DDD;border-radius:2px;margin:12px auto 0;}
+.modal-header{padding:14px 18px 12px;border-bottom:1px solid #F0F4F8;
+  display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:16px;font-weight:800;color:var(--navy);}
+.modal-close{background:#F0F4F8;border:none;width:30px;height:30px;
+  border-radius:50%;font-size:17px;cursor:pointer;color:var(--slate);
+  display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:15px 18px;}
+
+.fab{position:fixed;bottom:92px;right:16px;width:54px;height:54px;border-radius:50%;
+  background:var(--teal);color:white;border:none;font-size:26px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(14,124,123,.4);display:flex;align-items:center;
+  justify-content:center;z-index:90;transition:transform .15s;}
+.fab:active{transform:scale(.93);}
+
+.loading{display:flex;align-items:center;justify-content:center;
+  padding:40px;color:var(--slate);gap:10px;font-size:14px;}
+.spinner{width:20px;height:20px;border:2px solid #E2E8F0;
+  border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.empty{text-align:center;padding:36px 20px;color:var(--slate);}
+.empty-icon{font-size:44px;margin-bottom:10px;}
+.empty-text{font-size:15px;font-weight:600;color:var(--dgray);}
+.empty-sub{font-size:13px;margin-top:3px;}
+
+.divider{height:1px;background:#F0F4F8;margin:11px 0;}
+
+.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(16px);
+  background:var(--navy);color:white;padding:10px 20px;border-radius:25px;
+  font-size:13px;font-weight:600;z-index:300;opacity:0;
+  transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.search-box{background:white;border-radius:10px;padding:10px 13px;
+  display:flex;align-items:center;gap:8px;box-shadow:var(--sh);margin-bottom:11px;}
+.search-input{border:none;outline:none;font-size:14px;color:var(--dgray);
+  flex:1;font-family:inherit;background:transparent;}
+
+.detail-row{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:9px 0;border-bottom:1px solid #F0F4F8;}
+.detail-row:last-child{border-bottom:none;}
+.detail-key{font-size:12px;color:var(--slate);font-weight:600;flex:0 0 38%;}
+.detail-val{font-size:13px;color:var(--dgray);font-weight:500;text-align:right;flex:1;}
+
+.section-hdr{font-size:11px;font-weight:800;letter-spacing:.7px;
+  text-transform:uppercase;color:var(--slate);margin:16px 0 8px;}
+
+.alert-banner{padding:11px 14px;border-radius:10px;margin-bottom:10px;
+  display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;}
+.alert-red{background:var(--red-l);color:var(--red);}
+.alert-amber{background:var(--amber-l);color:var(--amber);}
+.alert-purple{background:var(--purp-l);color:var(--purple);}
+.alert-green{background:var(--green-l);color:var(--green);}
+
+input[type=date].form-control{color:var(--dgray);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-logo">IE</div>
+    <div>
+      <div class="topbar-title">Customer Journey Tracker</div>
+      <div class="topbar-sub" id="topbar-sub">CCWS Institutions · Ion Exchange</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:6px;">
+      <button style="background:rgba(255,255,255,.12);border:none;color:white;
+        width:34px;height:34px;border-radius:8px;font-size:16px;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;"
+        onclick="showToast('Synced ✓')">🔄</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGES -->
+<div id="page-dashboard" class="page active"></div>
+<div id="page-projects" class="page"></div>
+<div id="page-log" class="page"></div>
+<div id="page-issues" class="page"></div>
+<div id="page-handoffs" class="page"></div>
+
+<!-- BOTTOM NAV -->
+<div class="bottomnav">
+  <button class="bnav-item active" onclick="navigate('dashboard')">
+    <span class="bnav-icon">📊</span>Dashboard
+  </button>
+  <button class="bnav-item" onclick="navigate('projects')">
+    <span class="bnav-icon">🏗️</span>Projects
+  </button>
+  <button class="bnav-item" onclick="navigate('log')">
+    <span class="bnav-icon">✏️</span>Log Event
+  </button>
+  <button class="bnav-item" onclick="navigate('issues')">
+    <span class="bnav-icon">⚠️</span>Issues
+  </button>
+  <button class="bnav-item" onclick="navigate('handoffs')">
+    <span class="bnav-icon">🔁</span>Handoffs
+  </button>
+</div>
+
+<button class="fab" id="fab-btn" onclick="openNewProject()">＋</button>
+
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+let db=null, currentPage='dashboard', currentLogType='visit';
+let projects={}, events={}, issues={}, handoffs={};
+let prefillProjId='', prefillProjName='';
+
+const STAGES=[
+  {g:'PRE-SALES',c:'#0E7C7B',s:[
+    {code:'S01',name:'Lead / Enquiry Received'},
+    {code:'S02',name:'Site Visit & Requirement Assessment'},
+    {code:'S03',name:'Technical Specification Preparation'},
+    {code:'S04',name:'Proposal / Quotation Submitted'},
+    {code:'S05',name:'Technical Presentation to Customer'},
+    {code:'S06',name:'Competitor Comparison / Clarifications'},
+    {code:'S07',name:'Revised Proposal Submitted'},
+    {code:'S08',name:'Negotiation — Commercial Terms'},
+  ]},
+  {g:'ORDER STAGE',c:'#C9973A',s:[
+    {code:'S09',name:'Purchase Order / Work Order Received'},
+    {code:'S10',name:'Order Acknowledgement Issued'},
+    {code:'S11',name:'Advance Payment Received'},
+    {code:'S12',name:'GA Drawing Request to SSD'},
+    {code:'S13',name:'GA Drawing Received from SSD'},
+    {code:'S14',name:'Customer Approval of GA Drawing'},
+    {code:'S15',name:'BOQ Finalisation & Scope Freeze'},
+    {code:'S16',name:'BOM Released to Factory (SSD)'},
+  ]},
+  {g:'MANUFACTURING & DISPATCH',c:'#6D28D9',s:[
+    {code:'S17',name:'Manufacturing Started at SSD'},
+    {code:'S18',name:'Bought-Out Items Procurement'},
+    {code:'S19',name:'Quality Check / Factory Inspection'},
+    {code:'S20',name:'Customer Factory Visit'},
+    {code:'S21',name:'Dispatch Clearance — Balance Payment'},
+    {code:'S22',name:'Material Dispatched from Factory'},
+    {code:'S23',name:'Material Received at Site'},
+    {code:'S24',name:'Delivery Confirmed at Site'},
+  ]},
+  {g:'ERECTION & COMMISSIONING',c:'#C0392B',s:[
+    {code:'S25',name:'Site Mobilisation — Erection Team Deployed'},
+    {code:'S26',name:'Civil Works Verified'},
+    {code:'S27',name:'Equipment Erection / Installation'},
+    {code:'S28',name:'Electrical & Instrumentation Works'},
+    {code:'S29',name:'Trial Run (without load)'},
+    {code:'S30',name:'Trial Run (with load)'},
+    {code:'S31',name:'Performance Guarantee Test'},
+    {code:'S32',name:'Snag List Closure & Handover'},
+    {code:'S33',name:'Commissioning Certificate Issued'},
+  ]},
+  {g:'AFTER-SALES & SERVICE',c:'#1A7A4A',s:[
+    {code:'S34',name:'Operator Training Provided'},
+    {code:'S35',name:'O&M Manual Handed Over'},
+    {code:'S36',name:'Warranty Period Commenced'},
+    {code:'S37',name:'First Service Visit (30 days)'},
+    {code:'S38',name:'Quarterly Service Visit 1'},
+    {code:'S39',name:'Quarterly Service Visit 2'},
+    {code:'S40',name:'Breakdown — Response'},
+    {code:'S41',name:'Breakdown — Resolution'},
+    {code:'S42',name:'AMC / O&M Contract Discussion'},
+    {code:'S43',name:'AMC / O&M Contract Signed'},
+    {code:'S44',name:'Repeat Order / Expansion Identified'},
+  ]},
+];
+
+const ALL_STAGES=STAGES.flatMap(g=>g.s.map(s=>({...s,group:g.g})));
+
+const STATUS_OPTS=['On Track','At Risk','Delayed','Pending Approval',
+  'SSD Action Required','Customer Action Required','Not Started','Completed','Cancelled'];
+const RESPONSIBLE=['CCWS Sales','CCWS Technical','SSD Hosur','SSD Goa','SSD Wada',
+  'CCWS + SSD Joint','Customer','Third Party Contractor','Dealer','Management'];
+const DELAY_REASONS=['Drawing not received from SSD','BOQ not approved','Payment pending',
+  'PO not issued','Material not dispatched from factory','Site not ready',
+  'Design change by customer','Factory capacity constraint','Supplier delay',
+  'Customer approval pending','Internal coordination delay','Dealer issue',
+  'Freight/logistics delay','Scope change mid-project','Manpower unavailability','Other'];
+const SEGMENTS=['Hotels & Hospitality','Hospitals & Healthcare','Real Estate / Residential',
+  'IT Parks / Data Centers','Education / Campuses','Railways / Metro','Defence / Military',
+  'Government / PSU','Industrial / MIDC','Religious / Spiritual','Others'];
+const TECHNOLOGIES=['WWTP — FMR','WWTP — MBR','WWTP — SBR','WTP — RO System',
+  'WTP — UF / UFMATIC','WTP — Indromatic RO','WTP — Softener','WTP — Filtration (MGF/ACF)',
+  'WTP + WWTP Combined','EDI (Ultrapure Water)','Swimming Pool Treatment',
+  'Cooling Tower Treatment','Others'];
+const ISSUE_CATS=['Drawing Not Received from SSD','GA Drawing Error / Revision',
+  'Material Dispatch Delayed','Wrong Material Dispatched',
+  'Commissioning Engineer Not Deputed','After-Sales Not Attended',
+  'Scope Ambiguity (CCWS-SSD)','BOQ Dispute','Customer Complaint — Quality',
+  'Customer Complaint — Service Response','Site Access Issue',
+  'Warranty Claim Unresolved','Spare Parts Unavailable','Other'];
+const HANDOFF_TYPES=['GA Drawing Request (CCWS → SSD)',
+  'GA Drawing Issued (SSD → CCWS)','BOQ / BOM Request (CCWS → SSD)',
+  'BOM Released (SSD → Factory)','Customer Approved Drawing (CCWS → SSD)',
+  'Scope Change Notice (CCWS → SSD)','Technical Query (CCWS → SSD)',
+  'Technical Clarification (SSD → CCWS)','Dispatch Documents (SSD → CCWS)',
+  'Commissioning Support Request (CCWS → SSD)',
+  'Commissioning Engineer Deputed (SSD → Site)',
+  'Complaint Call (CCWS → SSD)','Service Engineer Deputed (SSD → Site)',
+  'Spare Parts Request (CCWS → SSD)','Warranty Claim (CCWS → SSD)','Other'];
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+async function init(){
+  document.getElementById('page-dashboard').innerHTML=
+    '<div class="loading"><div class="spinner"></div> Connecting…</div>';
+  try{
+    db=await claude.use('db');
+    if(!db){ renderOffline(); return; }
+    document.getElementById('topbar-sub').textContent='CCWS Institutions · Live Data';
+    subscribeAll();
+  }catch(e){ console.error(e); renderOffline(); }
+}
+
+function subscribeAll(){
+  db.collection('projects').onSnapshot(snap=>{
+    projects={};
+    snap.docs.forEach(d=>projects[d.id]=d.data);
+    refreshCurrent();
+  },e=>console.error(e));
+  db.collection('events').onSnapshot(snap=>{
+    events={};
+    snap.docs.forEach(d=>events[d.id]=d.data);
+    refreshCurrent();
+  },e=>console.error(e));
+  db.collection('issues').onSnapshot(snap=>{
+    issues={};
+    snap.docs.forEach(d=>issues[d.id]=d.data);
+    refreshCurrent();
+  },e=>console.error(e));
+  db.collection('handoffs').onSnapshot(snap=>{
+    handoffs={};
+    snap.docs.forEach(d=>handoffs[d.id]=d.data);
+    refreshCurrent();
+  },e=>console.error(e));
+}
+
+function refreshCurrent(){
+  if(currentPage==='dashboard') renderDashboard();
+  else if(currentPage==='projects') renderProjects();
+  else if(currentPage==='issues') renderIssues();
+  else if(currentPage==='handoffs') renderHandoffs();
+}
+
+function renderOffline(){
+  document.getElementById('page-dashboard').innerHTML=`
+    <div class="alert-banner alert-amber" style="margin-bottom:0">
+      <span>⚠️</span> Running in offline preview mode — data will not be saved
+    </div>
+    <div style="margin-top:12px">${dashboardHTML(0,0,0,0,0,0,[])}</div>`;
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function navigate(page){
+  currentPage=page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  const pages=['dashboard','projects','log','issues','handoffs'];
+  document.querySelectorAll('.bnav-item')[pages.indexOf(page)]?.classList.add('active');
+  document.getElementById('fab-btn').style.display=page==='projects'?'flex':'none';
+  if(page==='dashboard') renderDashboard();
+  else if(page==='projects') renderProjects();
+  else if(page==='log') renderLogPage();
+  else if(page==='issues') renderIssues();
+  else if(page==='handoffs') renderHandoffs();
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════
+function renderDashboard(){
+  const ps=Object.values(projects);
+  const ev=Object.values(events).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+  const is=Object.values(issues);
+  const ho=Object.values(handoffs);
+  const onTrack=ps.filter(p=>p.status==='On Track').length;
+  const atRisk=ps.filter(p=>p.status==='At Risk').length;
+  const delayed=ps.filter(p=>p.status==='Delayed').length;
+  const openIssues=is.filter(i=>!['Resolved','Closed'].includes(i.status)).length;
+  const ssdPending=ho.filter(h=>h.status==='SSD Action Required').length;
+  const ssdIssues=is.filter(i=>i.responsible?.includes('SSD')).length;
+  document.getElementById('page-dashboard').innerHTML=
+    dashboardHTML(ps.length,onTrack,atRisk,delayed,openIssues,ssdPending,ev.slice(0,6),ssdIssues);
+}
+
+function dashboardHTML(total,onTrack,atRisk,delayed,openIssues,ssdPending,recentEv,ssdIssues=0){
+  return `
+  <div class="stats-grid">
+    <div class="stat-card" style="border-top-color:var(--green)">
+      <div class="stat-num" style="color:var(--green)">${onTrack}</div>
+      <div class="stat-label">On Track</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--amber)">
+      <div class="stat-num" style="color:var(--amber)">${atRisk}</div>
+      <div class="stat-label">At Risk</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--red)">
+      <div class="stat-num" style="color:var(--red)">${delayed}</div>
+      <div class="stat-label">Delayed</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--teal)">
+      <div class="stat-num">${total}</div>
+      <div class="stat-label">Total Projects</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">⚠️ Issues & Handoffs</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:13px 15px;gap:4px">
+      <div style="text-align:center">
+        <div style="font-size:26px;font-weight:900;color:var(--red)">${openIssues}</div>
+        <div style="font-size:10px;color:var(--slate);font-weight:600;margin-top:2px">Open Issues</div>
+      </div>
+      <div style="text-align:center;border-left:1px solid #F0F4F8;border-right:1px solid #F0F4F8">
+        <div style="font-size:26px;font-weight:900;color:var(--purple)">${ssdIssues}</div>
+        <div style="font-size:10px;color:var(--slate);font-weight:600;margin-top:2px">SSD-Caused</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:26px;font-weight:900;color:var(--amber)">${ssdPending}</div>
+        <div style="font-size:10px;color:var(--slate);font-weight:600;margin-top:2px">Pending Handoffs</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">⚡ Quick Actions</div></div>
+    <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px">
+      <button class="btn btn-primary btn-sm" style="width:100%;font-size:13px" onclick="navigate('log');setLogType('visit')">📍 Log Visit</button>
+      <button class="btn btn-gold btn-sm" style="width:100%;font-size:13px" onclick="navigate('log');setLogType('stage')">📋 Stage Update</button>
+      <button class="btn btn-purple btn-sm" style="width:100%;font-size:13px" onclick="navigate('log');setLogType('handoff')">🔁 CCWS↔SSD Handoff</button>
+      <button class="btn btn-red btn-sm" style="width:100%;font-size:13px" onclick="navigate('log');setLogType('issue')">⚠️ Raise Issue</button>
+      <button class="btn btn-red btn-sm" style="width:100%;font-size:13px" onclick="navigate('log');setLogType('complaint')">🚨 Log Complaint</button>
+      <button class="btn btn-outline btn-sm" style="width:100%;font-size:13px" onclick="navigate('log');setLogType('comm')">💬 Customer Call</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Recent Activity</div></div>
+    <div style="padding:6px 0">
+      ${recentEv.length===0
+        ?'<div class="empty" style="padding:20px"><div class="empty-icon" style="font-size:32px">📭</div><div class="empty-sub">No events yet — log your first event!</div></div>'
+        :recentEv.map(ev=>`
+          <div style="padding:10px 15px;border-bottom:1px solid #F8FAFC;
+            display:flex;gap:11px;align-items:flex-start">
+            <div style="font-size:20px;flex-shrink:0">${evIcon(ev.type)}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:700;color:var(--navy);
+                white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                ${ev.project_name||ev.projectId||'—'}</div>
+              <div style="font-size:12px;color:var(--slate);margin-top:1px">
+                ${(ev.summary||ev.type||'').substring(0,65)}</div>
+              <div style="font-size:11px;color:var(--slate);margin-top:2px">
+                ${fmtDate(ev.timestamp)} · ${ev.logged_by||'Team'}</div>
+            </div>
+          </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// PROJECTS
+// ═══════════════════════════════════════════
+function renderProjects(){
+  const q=(document.getElementById('proj-search')||{}).value||'';
+  const ps=Object.entries(projects)
+    .filter(([,p])=>!q||
+      p.customer?.toLowerCase().includes(q.toLowerCase())||
+      p.location?.toLowerCase().includes(q.toLowerCase())||
+      p.project_id?.toLowerCase().includes(q.toLowerCase()))
+    .sort((a,b)=>new Date(b[1].created_at||0)-new Date(a[1].created_at||0));
+
+  document.getElementById('page-projects').innerHTML=`
+    <div class="search-box">
+      <span style="color:var(--slate);font-size:16px">🔍</span>
+      <input class="search-input" id="proj-search" placeholder="Search projects, customers…"
+        value="${q}" oninput="renderProjects()">
+    </div>
+    <div style="font-size:12px;color:var(--slate);margin-bottom:10px;font-weight:600">
+      ${ps.length} project${ps.length!==1?'s':''} ${q?'matching "'+q+'"':''}
+    </div>
+    ${ps.length===0
+      ?`<div class="empty"><div class="empty-icon">🏗️</div>
+         <div class="empty-text">No projects yet</div>
+         <div class="empty-sub">Tap ＋ to add your first project</div></div>`
+      :ps.map(([id,p])=>{
+        const sc=statusColor(p.status);
+        return `<div class="log-item ${sc.border}" onclick="openProject('${id}')">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+            <div style="flex:1;min-width:0">
+              <div class="log-type">${p.project_id||id} · ${p.segment||'—'}</div>
+              <div class="log-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.customer}</div>
+              <div class="log-desc">${p.location||'—'} · ${p.technology||'—'} · ${p.capacity||'—'}</div>
+            </div>
+            <span class="badge ${sc.badge}" style="flex-shrink:0">${p.status||'Active'}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap">
+            <span style="font-size:11px;color:var(--slate)">📋 ${p.current_stage||'Pre-Sales'}</span>
+            <span style="font-size:11px;color:var(--slate);margin-left:auto">💰 Rs ${p.order_value||'—'} L</span>
+          </div>
+          <div style="font-size:11px;color:var(--slate);margin-top:3px">
+            👤 ${p.sales_person||'—'} · 🏭 ${p.factory||'—'} · 🤝 ${p.dealer||'—'}
+          </div>
+        </div>`;}).join('')}`;
+}
+
+function openProject(id){
+  const p=projects[id]; if(!p) return;
+  const sc=statusColor(p.status);
+  const projEv=Object.values(events).filter(e=>e.projectId===id)
+    .sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+  const projIssues=Object.values(issues).filter(i=>i.projectId===id&&!['Resolved','Closed'].includes(i.status));
+
+  openModal('📋 '+p.customer,`
+    <span class="badge ${sc.badge}" style="margin-bottom:12px">${p.status||'Active'}</span>
+    ${projIssues.length>0?`<div class="alert-banner alert-red" style="margin-bottom:10px">
+      <span>⚠️</span> ${projIssues.length} open issue${projIssues.length>1?'s':''} on this project</div>`:''}
+    <div class="detail-row"><span class="detail-key">Project ID</span><span class="detail-val">${p.project_id||id}</span></div>
+    <div class="detail-row"><span class="detail-key">Location</span><span class="detail-val">${p.location||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Segment</span><span class="detail-val">${p.segment||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Technology</span><span class="detail-val">${p.technology||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Capacity</span><span class="detail-val">${p.capacity||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Order Value</span><span class="detail-val">Rs ${p.order_value||'—'} Lacs</span></div>
+    <div class="detail-row"><span class="detail-key">Sales Person</span><span class="detail-val">${p.sales_person||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Factory</span><span class="detail-val">${p.factory||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Dealer</span><span class="detail-val">${p.dealer||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Current Stage</span><span class="detail-val">${p.current_stage||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Delivery Date</span><span class="detail-val">${p.delivery_date||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Booking Date</span><span class="detail-val">${p.booking_date||'—'}</span></div>
+
+    <div class="divider"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px">
+      Update Status</div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px">
+      ${['On Track','At Risk','Delayed','Completed'].map(s=>`
+        <button class="btn btn-sm ${s===p.status?'btn-primary':'btn-gray'}"
+          style="width:auto;padding:7px 12px;font-size:12px"
+          onclick="updateStatus('${id}','${s}')">${s}</button>`).join('')}
+    </div>
+
+    <div class="divider"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px">
+      Activity (${projEv.length})</div>
+    ${projEv.slice(0,5).map(ev=>`
+      <div style="display:flex;gap:9px;padding:8px 0;border-bottom:1px solid #F8FAFC">
+        <div style="font-size:18px">${evIcon(ev.type)}</div>
+        <div><div style="font-size:12px;font-weight:600;color:var(--navy)">${ev.summary||ev.type||''}</div>
+        <div style="font-size:11px;color:var(--slate)">${fmtDate(ev.timestamp)} · ${ev.logged_by||''}</div></div>
+      </div>`).join('')||'<div style="font-size:12px;color:var(--slate)">No events yet</div>'}
+
+    <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-primary btn-sm" style="width:100%"
+        onclick="closeModal();navigate('log');setLogType('stage');setPrefill('${id}','${p.customer.replace(/'/g,"\\'")}')">
+        📋 Stage Update</button>
+      <button class="btn btn-red btn-sm" style="width:100%"
+        onclick="closeModal();navigate('log');setLogType('issue');setPrefill('${id}','${p.customer.replace(/'/g,"\\'")}')">
+        ⚠️ Raise Issue</button>
+      <button class="btn btn-gold btn-sm" style="width:100%"
+        onclick="closeModal();navigate('log');setLogType('handoff');setPrefill('${id}','${p.customer.replace(/'/g,"\\'")}')">
+        🔁 Log Handoff</button>
+      <button class="btn btn-outline btn-sm" style="width:100%"
+        onclick="closeModal();navigate('log');setLogType('visit');setPrefill('${id}','${p.customer.replace(/'/g,"\\'")}')">
+        📍 Log Visit</button>
+    </div>`);
+}
+
+async function updateStatus(id,status){
+  try{
+    await db.doc('projects/'+id).update({status});
+    closeModal(); showToast('Status updated: '+status);
+  }catch(e){showToast('Error: '+e.message);}
+}
+
+function openNewProject(){
+  openModal('＋ New Project',`
+    <div class="form-group"><label class="form-label">Project ID</label>
+      <input class="form-control" id="np-id" placeholder="e.g. CCWS-2526-045"></div>
+    <div class="form-group"><label class="form-label">Customer Name *</label>
+      <input class="form-control" id="np-cust" placeholder="Customer / Organisation name"></div>
+    <div class="form-group"><label class="form-label">Location</label>
+      <input class="form-control" id="np-loc" placeholder="City, State"></div>
+    <div class="form-group"><label class="form-label">Customer Segment</label>
+      <select class="form-control" id="np-seg">
+        <option value="">— Select —</option>${SEGMENTS.map(s=>`<option>${s}</option>`).join('')}
+      </select></div>
+    <div class="form-group"><label class="form-label">Technology</label>
+      <select class="form-control" id="np-tech">
+        <option value="">— Select —</option>${TECHNOLOGIES.map(t=>`<option>${t}</option>`).join('')}
+      </select></div>
+    <div class="form-group"><label class="form-label">Capacity (KLD or m³/hr)</label>
+      <input class="form-control" id="np-cap" placeholder="e.g. 200 KLD"></div>
+    <div class="form-group"><label class="form-label">Order Value (Rs Lacs)</label>
+      <input class="form-control" id="np-val" type="number" placeholder="e.g. 42.5"></div>
+    <div class="form-group"><label class="form-label">Booking Date</label>
+      <input class="form-control" id="np-bk" type="date" value="${today()}"></div>
+    <div class="form-group"><label class="form-label">Committed Delivery Date</label>
+      <input class="form-control" id="np-del" type="date"></div>
+    <div class="form-group"><label class="form-label">Sales Person</label>
+      <input class="form-control" id="np-sp" placeholder="Name"></div>
+    <div class="form-group"><label class="form-label">Region</label>
+      <select class="form-control" id="np-reg">
+        <option>North</option><option>South</option><option>East</option>
+        <option>West</option><option>PSU</option>
+      </select></div>
+    <div class="form-group"><label class="form-label">Factory</label>
+      <select class="form-control" id="np-fac">
+        <option>Hosur</option><option>Goa</option><option>Wada</option>
+        <option>Third Party</option>
+      </select></div>
+    <div class="form-group"><label class="form-label">Dealer Name</label>
+      <input class="form-control" id="np-dealer" placeholder="Dealer / Channel partner name"></div>
+    <div class="form-group"><label class="form-label">Current Stage</label>
+      <select class="form-control" id="np-stage">
+        ${ALL_STAGES.map(s=>`<option>${s.code} — ${s.name}</option>`).join('')}
+      </select></div>
+    <div class="form-group"><label class="form-label">Initial Status</label>
+      <select class="form-control" id="np-status">
+        ${STATUS_OPTS.map(s=>`<option>${s}</option>`).join('')}
+      </select></div>
+    <button class="btn btn-primary" onclick="saveProject()">💾 Save Project</button>`);
+}
+
+async function saveProject(){
+  const cust=g('np-cust');
+  if(!cust){showToast('Customer name is required');return;}
+  const id='proj_'+Date.now();
+  const data={
+    project_id:g('np-id')||('CCWS-'+Date.now().toString().slice(-5)),
+    customer:cust, location:g('np-loc'), segment:g('np-seg'),
+    technology:g('np-tech'), capacity:g('np-cap'), order_value:g('np-val'),
+    booking_date:g('np-bk'), delivery_date:g('np-del'), sales_person:g('np-sp'),
+    region:g('np-reg'), factory:g('np-fac'), dealer:g('np-dealer'),
+    current_stage:g('np-stage'), status:g('np-status'),
+    created_at:new Date().toISOString()
+  };
+  try{
+    await db.doc('projects/'+id).set(data);
+    closeModal(); showToast('Project saved ✓');
+  }catch(e){showToast('Error: '+e.message);}
+}
+
+// ═══════════════════════════════════════════
+// LOG EVENT PAGE
+// ═══════════════════════════════════════════
+function renderLogPage(){
+  const tabs=[
+    {t:'visit',label:'📍 Site Visit'},
+    {t:'stage',label:'📋 Stage Update'},
+    {t:'handoff',label:'🔁 CCWS↔SSD'},
+    {t:'issue',label:'⚠️ Issue'},
+    {t:'complaint',label:'🚨 Complaint'},
+    {t:'comm',label:'💬 Customer Call'},
+  ];
+  document.getElementById('page-log').innerHTML=`
+    <div class="tab-scroll" id="log-tabs">
+      ${tabs.map(({t,label})=>
+        `<button class="tab-pill${t===currentLogType?' active':''}"
+          onclick="setLogType('${t}')">${label}</button>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title" id="log-form-title">Log Event</div>
+        <div class="card-sub">Fill immediately after the event for accuracy</div>
+      </div>
+      <div class="card-body" id="log-form-body"></div>
+    </div>`;
+  renderLogForm();
+}
+
+function setLogType(t){
+  currentLogType=t;
+  document.querySelectorAll('#log-tabs .tab-pill').forEach(b=>{
+    b.classList.toggle('active',b.textContent.toLowerCase().includes(t.substring(0,3)));
+  });
+  renderLogForm();
+}
+
+function setPrefill(id,name){
+  prefillProjId=id; prefillProjName=name;
+  renderLogForm();
+}
+
+function projSelect(selId='lf-proj'){
+  const opts=Object.entries(projects)
+    .map(([id,p])=>`<option value="${id}"${id===prefillProjId?' selected':''}>${p.customer} (${p.project_id||id})</option>`)
+    .join('');
+  return `<div class="form-group"><label class="form-label">Project *</label>
+    <select class="form-control" id="${selId}">
+      <option value="">— Select Project —</option>${opts}
+    </select></div>`;
+}
+
+function renderLogForm(){
+  const forms={
+    visit:`
+      ${projSelect()}
+      <div class="form-group"><label class="form-label">Visit Date *</label>
+        <input class="form-control" id="lf-date" type="date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">IE Representative</label>
+        <input class="form-control" id="lf-rep" placeholder="Your name"></div>
+      <div class="form-group"><label class="form-label">Customer Contact Met</label>
+        <input class="form-control" id="lf-contact" placeholder="Name + Designation"></div>
+      <div class="form-group"><label class="form-label">Purpose of Visit</label>
+        <select class="form-control" id="lf-purpose">
+          <option>Initial Site Assessment</option><option>Proposal Presentation</option>
+          <option>Technical Clarification</option><option>Negotiation</option>
+          <option>Drawing Review with Customer</option><option>Site Inspection (During Erection)</option>
+          <option>Commissioning Support</option><option>Service / AMC Visit</option>
+          <option>Complaint Resolution</option><option>AMC Discussion</option>
+          <option>Other</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Summary of Discussion *</label>
+        <textarea class="form-control" id="lf-summary"
+          placeholder="Key points discussed, decisions made, customer sentiment…"></textarea></div>
+      <div class="form-group"><label class="form-label">Commitment Made by IE</label>
+        <input class="form-control" id="lf-commit" placeholder="What did we promise the customer?"></div>
+      <div class="form-group"><label class="form-label">Next Action Required</label>
+        <input class="form-control" id="lf-next" placeholder="Who does what by when?"></div>
+      <div class="form-group"><label class="form-label">Follow-up Date</label>
+        <input class="form-control" id="lf-followup" type="date"></div>
+      <button class="btn btn-primary" onclick="saveEvent('visit')">📍 Save Visit Log</button>`,
+
+    stage:`
+      ${projSelect()}
+      <div class="form-group"><label class="form-label">Stage *</label>
+        <select class="form-control" id="lf-stage">
+          ${STAGES.map(g=>`<optgroup label="${g.g}">${g.s.map(s=>`<option>${s.code} — ${s.name}</option>`).join('')}</optgroup>`).join('')}
+        </select></div>
+      <div class="form-group"><label class="form-label">Status *</label>
+        <select class="form-control" id="lf-status">
+          ${STATUS_OPTS.map(s=>`<option>${s}</option>`).join('')}
+        </select></div>
+      <div class="form-group"><label class="form-label">Responsible Party</label>
+        <select class="form-control" id="lf-resp">
+          ${RESPONSIBLE.map(r=>`<option>${r}</option>`).join('')}
+        </select></div>
+      <div class="form-group"><label class="form-label">Date of Stage Update</label>
+        <input class="form-control" id="lf-actual" type="date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Delay Reason (if delayed)</label>
+        <select class="form-control" id="lf-delay">
+          <option value="">— Not delayed —</option>
+          ${DELAY_REASONS.map(r=>`<option>${r}</option>`).join('')}
+        </select></div>
+      <div class="form-group"><label class="form-label">Remarks</label>
+        <textarea class="form-control" id="lf-remarks"
+          placeholder="Any notes, observations, or context…"></textarea></div>
+      <div class="form-group"><label class="form-label">Escalate this issue?</label>
+        <select class="form-control" id="lf-escalate">
+          <option value="">No escalation needed</option>
+          <option>Level 1 — Team Lead</option>
+          <option>Level 2 — Regional Manager</option>
+          <option>Level 3 — Sidharth (Head Institutions)</option>
+          <option>Level 4 — SSD Head</option>
+          <option>Level 5 — MD / Executive</option>
+        </select></div>
+      <button class="btn btn-gold" onclick="saveEvent('stage')">📋 Save Stage Update</button>`,
+
+    handoff:`
+      ${projSelect()}
+      <div class="form-group"><label class="form-label">Handoff Type *</label>
+        <select class="form-control" id="lf-htype">
+          ${HANDOFF_TYPES.map(h=>`<option>${h}</option>`).join('')}
+        </select></div>
+      <div class="form-group"><label class="form-label">Description — be specific *</label>
+        <textarea class="form-control" id="lf-hdesc"
+          placeholder="Exactly what was handed off? Drawing number, revision, document name…"></textarea></div>
+      <div class="form-group"><label class="form-label">Sent By (Name + Team)</label>
+        <input class="form-control" id="lf-hfrom" placeholder="e.g. Rahul Sharma, CCWS Sales"></div>
+      <div class="form-group"><label class="form-label">Date Sent *</label>
+        <input class="form-control" id="lf-hdate" type="date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Sent To (Name + Team)</label>
+        <input class="form-control" id="lf-hto" placeholder="e.g. SSD Hosur — Design Team, Mr. XYZ"></div>
+      <div class="form-group"><label class="form-label">Committed Response / Delivery Date</label>
+        <input class="form-control" id="lf-hcommit" type="date"></div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select class="form-control" id="lf-hstatus">
+          <option>SSD Action Required</option>
+          <option>CCWS Action Required</option>
+          <option>Customer Action Required</option>
+          <option>Completed</option>
+          <option>Overdue — Escalating</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Remarks</label>
+        <input class="form-control" id="lf-hremarks" placeholder="Any additional context…"></div>
+      <button class="btn btn-purple" onclick="saveEvent('handoff')">🔁 Save Handoff Log</button>`,
+
+    issue:`
+      ${projSelect()}
+      <div class="form-group"><label class="form-label">Issue Category *</label>
+        <select class="form-control" id="lf-icat">
+          ${ISSUE_CATS.map(c=>`<option>${c}</option>`).join('')}
+        </select></div>
+      <div class="form-group"><label class="form-label">Issue Description * — be specific</label>
+        <textarea class="form-control" id="lf-idesc" style="min-height:100px"
+          placeholder="What exactly is the problem? When was it first noticed? What has been tried?"></textarea></div>
+      <div class="form-group"><label class="form-label">Impact on Project / Customer</label>
+        <textarea class="form-control" id="lf-impact"
+          placeholder="How is this affecting delivery, commissioning, or customer satisfaction?"></textarea></div>
+      <div class="form-group"><label class="form-label">Responsible Party</label>
+        <select class="form-control" id="lf-iresp">
+          ${RESPONSIBLE.map(r=>`<option>${r}</option>`).join('')}
+        </select></div>
+      <div class="form-group"><label class="form-label">Assigned To (for resolution)</label>
+        <input class="form-control" id="lf-iassign"
+          placeholder="Name + team responsible for resolving this"></div>
+      <div class="form-group"><label class="form-label">Committed Resolution Date</label>
+        <input class="form-control" id="lf-iresolve" type="date"></div>
+      <div class="form-group"><label class="form-label">Escalation Level</label>
+        <select class="form-control" id="lf-iesc">
+          <option value="">— No escalation yet —</option>
+          <option>Level 1 — Team Lead</option>
+          <option>Level 2 — Regional Manager</option>
+          <option>Level 3 — Sidharth (Head Institutions)</option>
+          <option>Level 4 — SSD Head</option>
+          <option>Level 5 — MD / Executive</option>
+        </select></div>
+      <button class="btn btn-red" onclick="saveEvent('issue')">⚠️ Log Issue</button>`,
+
+    complaint:`
+      ${projSelect()}
+      <div class="form-group"><label class="form-label">Complaint Date *</label>
+        <input class="form-control" id="lf-cdate" type="date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Complaint Received From</label>
+        <input class="form-control" id="lf-cfrom"
+          placeholder="Customer name + designation + contact"></div>
+      <div class="form-group"><label class="form-label">Complaint Category</label>
+        <select class="form-control" id="lf-ccat">
+          <option>Product Quality Issue</option>
+          <option>Delivery Delay</option>
+          <option>Drawing / Documentation Issue</option>
+          <option>Commissioning Delay</option>
+          <option>After-Sales Response Time</option>
+          <option>Performance Not As Specified</option>
+          <option>Wrong Material Supplied</option>
+          <option>Service Engineer No-Show / Delay</option>
+          <option>Spare Parts Unavailability</option>
+          <option>Communication Gap — No Updates Given</option>
+          <option>Other</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Complaint in Customer's Words *</label>
+        <textarea class="form-control" id="lf-cdesc" style="min-height:100px"
+          placeholder="Write exactly what the customer said or emailed…"></textarea></div>
+      <div class="form-group"><label class="form-label">Severity</label>
+        <select class="form-control" id="lf-csev">
+          <option>High — Customer very unhappy / threatening escalation</option>
+          <option>Medium — Issue flagged, customer is waiting for resolution</option>
+          <option>Low — Minor concern, noted for improvement</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Assigned To for Resolution</label>
+        <select class="form-control" id="lf-cassign">
+          ${RESPONSIBLE.map(r=>`<option>${r}</option>`).join('')}
+        </select></div>
+      <div class="form-group"><label class="form-label">Promised Resolution By</label>
+        <input class="form-control" id="lf-cpromise" type="date"></div>
+      <div class="form-group"><label class="form-label">IE Representative Handling</label>
+        <input class="form-control" id="lf-chandler" placeholder="Name + team"></div>
+      <button class="btn btn-red" onclick="saveEvent('complaint')">🚨 Log Complaint</button>`,
+
+    comm:`
+      ${projSelect()}
+      <div class="form-group"><label class="form-label">Date *</label>
+        <input class="form-control" id="lf-comdate" type="date" value="${today()}"></div>
+      <div class="form-group"><label class="form-label">Mode of Communication</label>
+        <select class="form-control" id="lf-commode">
+          <option>Site Visit</option><option>Phone Call</option>
+          <option>Video Call (Teams/Zoom)</option><option>Email</option>
+          <option>WhatsApp</option><option>Customer Visit to IE Office</option>
+          <option>Formal Meeting</option><option>Letter / Correspondence</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">IE Representative</label>
+        <input class="form-control" id="lf-comrep" placeholder="Your name"></div>
+      <div class="form-group"><label class="form-label">Customer Contact</label>
+        <input class="form-control" id="lf-comcontact" placeholder="Name + Designation"></div>
+      <div class="form-group"><label class="form-label">Summary of Discussion *</label>
+        <textarea class="form-control" id="lf-comsum"
+          placeholder="What was discussed? Key decisions or concerns raised?"></textarea></div>
+      <div class="form-group"><label class="form-label">Commitment Made by IE</label>
+        <input class="form-control" id="lf-comcommit"
+          placeholder="What did we promise? By when?"></div>
+      <div class="form-group"><label class="form-label">Next Action</label>
+        <input class="form-control" id="lf-comnext"
+          placeholder="Who does what next?"></div>
+      <div class="form-group"><label class="form-label">Follow-up Date</label>
+        <input class="form-control" id="lf-comfollowup" type="date"></div>
+      <button class="btn btn-primary" onclick="saveEvent('comm')">💬 Save Communication Log</button>`,
+  };
+
+  const titles={visit:'📍 Log Site Visit',stage:'📋 Update Stage',
+    handoff:'🔁 CCWS↔SSD Handoff',issue:'⚠️ Raise Issue',
+    complaint:'🚨 Log Customer Complaint',comm:'💬 Log Communication'};
+
+  const fb=document.getElementById('log-form-body');
+  const ft=document.getElementById('log-form-title');
+  if(fb) fb.innerHTML=forms[currentLogType]||'';
+  if(ft) ft.textContent=titles[currentLogType]||'Log Event';
+
+  if(prefillProjId){
+    const s=document.getElementById('lf-proj');
+    if(s) s.value=prefillProjId;
+  }
+}
+
+// ═══════════════════════════════════════════
+// SAVE EVENT
+// ═══════════════════════════════════════════
+async function saveEvent(type){
+  if(!db){showToast('Not connected to database');return;}
+  const projId=g('lf-proj')||'';
+  const proj=projects[projId];
+
+  let data={type,projectId:projId,
+    project_name:proj?.customer||projId,
+    timestamp:new Date().toISOString()};
+
+  if(type==='visit'){
+    if(!projId){showToast('Please select a project');return;}
+    const sum=g('lf-summary');
+    if(!sum){showToast('Please add a summary');return;}
+    Object.assign(data,{date:g('lf-date'),logged_by:g('lf-rep'),
+      contact:g('lf-contact'),purpose:g('lf-purpose'),
+      summary:g('lf-purpose')+' — '+sum.substring(0,60),
+      full_summary:sum,commitment:g('lf-commit'),
+      next_action:g('lf-next'),followup:g('lf-followup')});
+  } else if(type==='stage'){
+    if(!projId){showToast('Please select a project');return;}
+    const stage=g('lf-stage'),status=g('lf-status');
+    Object.assign(data,{stage,status,responsible:g('lf-resp'),
+      date:g('lf-actual'),delay_reason:g('lf-delay'),
+      remarks:g('lf-remarks'),escalation:g('lf-escalate'),
+      summary:`Stage ${stage} → ${status}`,logged_by:g('lf-rep')||'Team'});
+    try{await db.doc('projects/'+projId).update({
+      current_stage:stage,status});}catch(e){}
+  } else if(type==='handoff'){
+    if(!projId){showToast('Please select a project');return;}
+    const desc=g('lf-hdesc');
+    if(!desc){showToast('Please describe the handoff');return;}
+    const hid='h_'+Date.now();
+    const hdata={projectId:projId,project_name:proj?.customer,
+      type:g('lf-htype'),description:desc,
+      sent_by:g('lf-hfrom'),date_sent:g('lf-hdate'),
+      sent_to:g('lf-hto'),committed_date:g('lf-hcommit'),
+      status:g('lf-hstatus'),remarks:g('lf-hremarks'),
+      created_at:new Date().toISOString()};
+    try{await db.doc('handoffs/'+hid).set(hdata);
+      showToast('Handoff logged ✓');clearLog();return;}
+    catch(e){showToast('Error: '+e.message);return;}
+  } else if(type==='issue'||type==='complaint'){
+    if(!projId){showToast('Please select a project');return;}
+    const desc=g(type==='issue'?'lf-idesc':'lf-cdesc');
+    if(!desc){showToast('Please describe the issue');return;}
+    const iid=(type==='issue'?'i_':'c_')+Date.now();
+    const idata={projectId:projId,project_name:proj?.customer,type,
+      category:g(type==='issue'?'lf-icat':'lf-ccat'),
+      description:desc,
+      impact:g('lf-impact')||g('lf-csev')||'',
+      responsible:g(type==='issue'?'lf-iresp':'lf-cassign'),
+      assigned_to:g(type==='issue'?'lf-iassign':'lf-chandler')||'',
+      resolution_date:g(type==='issue'?'lf-iresolve':'lf-cpromise'),
+      escalation:g('lf-iesc')||'',
+      reported_by:g('lf-cfrom')||'',
+      status:'Open',created_at:new Date().toISOString()};
+    try{await db.doc('issues/'+iid).set(idata);
+      showToast((type==='issue'?'Issue':'Complaint')+' logged ✓');
+      clearLog();return;}
+    catch(e){showToast('Error: '+e.message);return;}
+  } else if(type==='comm'){
+    if(!projId){showToast('Please select a project');return;}
+    const sum=g('lf-comsum');
+    if(!sum){showToast('Please add a summary');return;}
+    Object.assign(data,{date:g('lf-comdate'),mode:g('lf-commode'),
+      logged_by:g('lf-comrep'),contact:g('lf-comcontact'),
+      summary:g('lf-commode')+' — '+sum.substring(0,55),
+      full_summary:sum,commitment:g('lf-comcommit'),
+      next_action:g('lf-comnext'),followup:g('lf-comfollowup')});
+  }
+
+  const eid='ev_'+Date.now();
+  try{
+    await db.doc('events/'+eid).set(data);
+    showToast('Saved ✓'); clearLog();
+  }catch(e){showToast('Error: '+e.message);}
+}
+
+function clearLog(){
+  prefillProjId=''; prefillProjName='';
+  renderLogForm();
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════════
+// ISSUES PAGE
+// ═══════════════════════════════════════════
+function renderIssues(){
+  const all=Object.entries(issues)
+    .sort((a,b)=>new Date(b[1].created_at||0)-new Date(a[1].created_at||0));
+  const open=all.filter(([,i])=>!['Resolved','Closed'].includes(i.status));
+  const resolved=all.filter(([,i])=>['Resolved','Closed'].includes(i.status));
+
+  document.getElementById('page-issues').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+      <div style="background:var(--red-l);border-radius:10px;padding:11px;text-align:center">
+        <div style="font-size:26px;font-weight:900;color:var(--red)">${open.length}</div>
+        <div style="font-size:10px;color:var(--red);font-weight:600">Open</div>
+      </div>
+      <div style="background:var(--purp-l);border-radius:10px;padding:11px;text-align:center">
+        <div style="font-size:26px;font-weight:900;color:var(--purple)">
+          ${all.filter(([,i])=>i.responsible?.includes('SSD')).length}</div>
+        <div style="font-size:10px;color:var(--purple);font-weight:600">SSD-Caused</div>
+      </div>
+      <div style="background:var(--green-l);border-radius:10px;padding:11px;text-align:center">
+        <div style="font-size:26px;font-weight:900;color:var(--green)">${resolved.length}</div>
+        <div style="font-size:10px;color:var(--green);font-weight:600">Resolved</div>
+      </div>
+    </div>
+    <button class="btn btn-red" style="margin-bottom:12px"
+      onclick="navigate('log');setLogType('issue')">＋ Raise New Issue</button>
+    ${all.length===0
+      ?`<div class="empty"><div class="empty-icon">✅</div>
+         <div class="empty-text">No issues logged</div>
+         <div class="empty-sub">All issues logged will appear here</div></div>`
+      :all.map(([id,i])=>{
+        const isSSD=i.responsible?.includes('SSD');
+        const isOpen=!['Resolved','Closed'].includes(i.status);
+        const col=isOpen?(isSSD?'purple':'red'):'green';
+        return `<div class="log-item ${col}" onclick="openIssue('${id}')">
+          <div class="log-type">${i.type==='complaint'?'🚨 COMPLAINT':'⚠️ ISSUE'} · ${i.project_name||'—'}</div>
+          <div class="log-title">${i.category||'Issue'}</div>
+          <div class="log-desc">${(i.description||'').substring(0,80)}${(i.description||'').length>80?'…':''}</div>
+          ${i.impact?`<div style="font-size:11px;color:var(--red);margin-top:4px">Impact: ${i.impact.substring(0,60)}</div>`:''}
+          <div class="log-footer" style="margin-top:8px">
+            <span class="badge ${isSSD?'bp':isOpen?'br':'bg'}">${i.status||'Open'}</span>
+            <span class="log-date">${fmtDate(i.created_at)}</span>
+          </div>
+        </div>`;}).join('')}`;
+}
+
+function openIssue(id){
+  const i=issues[id]; if(!i) return;
+  const isSSD=i.responsible?.includes('SSD');
+  const isOpen=!['Resolved','Closed'].includes(i.status);
+  const col=isOpen?(isSSD?'purple':'red'):'green';
+  openModal((i.type==='complaint'?'🚨 ':'⚠️ ')+(i.category||'Issue'),`
+    <span class="badge ${isSSD?'bp':isOpen?'br':'bg'}" style="margin-bottom:12px">${i.status||'Open'}</span>
+    <div class="detail-row"><span class="detail-key">Project</span><span class="detail-val">${i.project_name||i.projectId||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Category</span><span class="detail-val">${i.category||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Responsible</span>
+      <span class="detail-val" style="color:${isSSD?'var(--purple)':'var(--dgray)'};font-weight:700">${i.responsible||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Assigned To</span><span class="detail-val">${i.assigned_to||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Resolve By</span><span class="detail-val">${i.resolution_date||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Escalation</span><span class="detail-val">${i.escalation||'None'}</span></div>
+    <div class="detail-row"><span class="detail-key">Logged</span><span class="detail-val">${fmtDate(i.created_at)}</span></div>
+    ${i.reported_by?`<div class="detail-row"><span class="detail-key">Reported By</span><span class="detail-val">${i.reported_by}</span></div>`:''}
+    <div style="margin-top:12px">
+      <div class="form-label">Description</div>
+      <div style="font-size:13px;color:var(--dgray);line-height:1.6;margin-top:4px;
+        padding:10px;background:var(--gray);border-radius:8px">${i.description||'—'}</div>
+    </div>
+    ${i.impact?`<div style="margin-top:10px">
+      <div class="form-label">Impact</div>
+      <div style="font-size:13px;color:var(--red);line-height:1.6;margin-top:4px;
+        padding:10px;background:var(--red-l);border-radius:8px">${i.impact}</div></div>`:''}
+    ${isOpen?`
+    <div class="divider"></div>
+    <div class="form-group"><label class="form-label">Resolution Notes</label>
+      <textarea class="form-control" id="res-notes" placeholder="Describe how the issue was resolved…"></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-primary btn-sm" style="width:100%" onclick="resolveIssue('${id}')">✅ Mark Resolved</button>
+      <button class="btn btn-gray btn-sm" style="width:100%" onclick="closeModal()">Close</button>
+    </div>`:
+    `<button class="btn btn-gray btn-sm" style="margin-top:12px" onclick="closeModal()">Close</button>`}`);
+}
+
+async function resolveIssue(id){
+  const notes=g('res-notes')||'Resolved';
+  try{
+    await db.doc('issues/'+id).update({
+      status:'Resolved',resolution_notes:notes,
+      resolved_at:new Date().toISOString()});
+    closeModal(); showToast('Issue marked resolved ✓');
+  }catch(e){showToast('Error: '+e.message);}
+}
+
+// ═══════════════════════════════════════════
+// HANDOFFS PAGE
+// ═══════════════════════════════════════════
+function renderHandoffs(){
+  const all=Object.entries(handoffs)
+    .sort((a,b)=>new Date(b[1].created_at||0)-new Date(a[1].created_at||0));
+  const pending=all.filter(([,h])=>['SSD Action Required','Overdue — Escalating'].includes(h.status));
+
+  document.getElementById('page-handoffs').innerHTML=`
+    ${pending.length>0?`
+    <div class="alert-banner alert-purple">
+      <span>🔁</span> ${pending.length} handoff${pending.length>1?'s':''} awaiting SSD response
+    </div>`:''}
+    <button class="btn btn-purple" style="margin-bottom:12px"
+      onclick="navigate('log');setLogType('handoff')">＋ Log New Handoff</button>
+    ${all.length===0
+      ?`<div class="empty"><div class="empty-icon">🔁</div>
+         <div class="empty-text">No handoffs logged</div>
+         <div class="empty-sub">CCWS↔SSD handoffs will appear here</div></div>`
+      :all.map(([id,h])=>{
+        const isPending=['SSD Action Required','Overdue — Escalating'].includes(h.status);
+        const isDone=h.status==='Completed';
+        const col=isPending?'purple':isDone?'green':'amber';
+        return `<div class="log-item ${col}" onclick="openHandoff('${id}')">
+          <div class="log-type">${h.project_name||h.projectId}</div>
+          <div class="log-title">${h.type||'Handoff'}</div>
+          <div class="log-desc">${(h.description||'').substring(0,75)}</div>
+          <div style="font-size:11px;color:var(--slate);margin-top:5px">
+            📤 ${h.sent_by||'—'} → 📥 ${h.sent_to||'—'}
+          </div>
+          <div class="log-footer" style="margin-top:7px">
+            <span class="badge ${isPending?'bp':isDone?'bg':'ba'}">${h.status||'Pending'}</span>
+            <span class="log-date">${fmtDate(h.date_sent||h.created_at)}</span>
+          </div>
+        </div>`;}).join('')}`;
+}
+
+function openHandoff(id){
+  const h=handoffs[id]; if(!h) return;
+  const isPending=['SSD Action Required','Overdue — Escalating'].includes(h.status);
+  openModal('🔁 Handoff Detail',`
+    <div class="detail-row"><span class="detail-key">Project</span><span class="detail-val">${h.project_name||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Type</span><span class="detail-val">${h.type||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Sent By</span><span class="detail-val">${h.sent_by||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Date Sent</span><span class="detail-val">${h.date_sent||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Sent To</span><span class="detail-val">${h.sent_to||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Response Due</span><span class="detail-val">${h.committed_date||'—'}</span></div>
+    <div class="detail-row"><span class="detail-key">Status</span>
+      <span class="detail-val" style="color:${isPending?'var(--purple)':'var(--green)'};font-weight:700">${h.status||'—'}</span></div>
+    <div style="margin-top:12px">
+      <div class="form-label">Description</div>
+      <div style="font-size:13px;line-height:1.6;padding:10px;background:var(--gray);border-radius:8px">${h.description||'—'}</div>
+    </div>
+    ${h.remarks?`<div style="margin-top:8px"><div class="form-label">Remarks</div>
+      <div style="font-size:13px;padding:8px;background:var(--gray);border-radius:8px">${h.remarks}</div></div>`:''}
+    ${isPending?`
+    <div class="divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-primary btn-sm" style="width:100%" onclick="completeHandoff('${id}')">✅ Mark Complete</button>
+      <button class="btn btn-red btn-sm" style="width:100%" onclick="escalateHandoff('${id}')">🚨 Escalate</button>
+    </div>`:'<button class="btn btn-gray btn-sm" style="margin-top:12px" onclick="closeModal()">Close</button>'}`);
+}
+
+async function completeHandoff(id){
+  try{
+    await db.doc('handoffs/'+id).update({
+      status:'Completed',completed_at:new Date().toISOString()});
+    closeModal(); showToast('Handoff marked complete ✓');
+  }catch(e){showToast('Error: '+e.message);}
+}
+
+async function escalateHandoff(id){
+  try{
+    await db.doc('handoffs/'+id).update({status:'Overdue — Escalating'});
+    closeModal(); showToast('Escalated ✓');
+  }catch(e){showToast('Error: '+e.message);}
+}
+
+// ═══════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════
+function openModal(title,body){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-body').innerHTML=body;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function closeModalOutside(e){
+  if(e.target===document.getElementById('modal')) closeModal();
+}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function g(id){const e=document.getElementById(id);return e?e.value:'';}
+function evIcon(t){return{visit:'📍',stage:'📋',handoff:'🔁',issue:'⚠️',complaint:'🚨',comm:'💬'}[t]||'📝';}
+function fmtDate(iso){
+  if(!iso) return '—';
+  try{const d=new Date(iso);
+    return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'});}
+  catch{return iso;}
+}
+function today(){return new Date().toISOString().split('T')[0];}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+function statusColor(s){
+  return{
+    'On Track':{border:'green',badge:'bg'},
+    'At Risk':{border:'amber',badge:'ba'},
+    'Delayed':{border:'red',badge:'br'},
+    'SSD Action Required':{border:'purple',badge:'bp'},
+    'Completed':{border:'green',badge:'bt'},
+    'Cancelled':{border:'red',badge:'br'},
+  }[s]||{border:'',badge:'bt'};
+}
+
+// ═══════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════
+document.getElementById('fab-btn').style.display='none';
+navigate('dashboard');
+init();
+</script>
+</body>
+</html>
+<!-- PATCH: This marker shows the base file is intact -->
